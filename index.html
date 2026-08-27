@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VORTXA — We Build Brands That Command</title>
+  <meta name="description" content="VORTXA is a full-service creative agency mastering Brand Strategy, Marketing & Advertising, Content Production, and Digital Technology. We build brands that command attention.">
+  <meta name="keywords" content="brand agency, social media marketing, web development, content production, branding, Egypt, MENA">
+  <meta property="og:title" content="VORTXA — We Build Brands That Command">
+  <meta property="og:description" content="4 pillars. Infinite impact. Brand Strategy · Marketing · Content · Digital.">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <!-- Canvas Particles -->
+  <canvas id="particles-canvas"></canvas>
+
+  <!-- Ambient Glows -->
+  <div class="ambient amb-1"></div>
+  <div class="ambient amb-2"></div>
+  <div class="ambient amb-3"></div>
+
+  <!-- ═══ NAVIGATION ═══ -->
+  <header class="header" id="header">
+    <div class="container nav-inner">
+      <a href="#home" class="logo">
+        <div class="logo-mark">◈</div>
+        <span class="logo-text">VORT<span>XA</span></span>
+      </a>
+
+      <nav class="nav-links">
+        <a href="#home"     class="nav-link active" id="nav-home">Home</a>
+        <a href="#services" class="nav-link"         id="nav-services">Services</a>
+        <a href="#process"  class="nav-link"         id="nav-process">Process</a>
+        <a href="#work"     class="nav-link"         id="nav-work">Work</a>
+        <a href="#contact"  class="nav-link"         id="nav-contact">Contact</a>
+      </nav>
+
+      <div class="nav-actions">
+        <a href="#contact" class="btn btn-orange btn-sm">Get Free Quote</a>
+      </div>
+
+      <div class="mobile-toggle" id="mobile-toggle" aria-label="Open menu">
+        <i class="ri-menu-4-line"></i>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Menu Overlay -->
+  <div class="mobile-overlay" id="mobile-overlay"></div>
+
+  <!-- Mobile Menu -->
+  <nav class="mobile-menu" id="mobile-menu">
+    <div class="mobile-close" id="mobile-close"><i class="ri-close-line"></i></div>
+    <a href="#home"     class="nav-link" onclick="closeMobile()">Home</a>
+    <a href="#services" class="nav-link" onclick="closeMobile()">Services</a>
+    <a href="#process"  class="nav-link" onclick="closeMobile()">Process</a>
+    <a href="#work"     class="nav-link" onclick="closeMobile()">Work</a>
+    <a href="#contact"  class="nav-link" onclick="closeMobile()">Contact</a>
+    <a href="#contact"  class="btn btn-orange" style="margin-top:16px;" onclick="closeMobile()">Get Free Quote</a>
+  </nav>
+
+  <!-- ═══ HERO ═══ -->
+  <section id="home" class="hero">
+    <div class="container hero-grid">
+
+      <!-- Content -->
+      <div class="hero-content">
+        <div class="hero-badge" id="hero-badge">
+          <span class="badge-dot"></span>
+          Full-Service Creative Agency — Egypt & MENA
+        </div>
+
+        <h1 class="hero-title">
+          <span class="line"><span class="word">We</span> <span class="word">Build</span></span>
+          <span class="line"><span class="word gradient-text">Brands</span> <span class="word">That</span></span>
+          <span class="line"><span class="word">Command.</span></span>
+        </h1>
+
+        <p class="hero-sub">
+          Strategy meets spectacle. From bold brand identities to viral campaigns, 
+          high-impact content to cutting-edge digital systems — VORTXA delivers 
+          results that move markets and make noise.
+        </p>
+
+        <div class="hero-actions">
+          <a href="#services" class="btn btn-orange btn-lg">
+            <i class="ri-fire-line"></i> Explore Services
+          </a>
+          <a href="#work" class="btn btn-outline btn-lg">
+            See Our Work <i class="ri-arrow-right-line"></i>
+          </a>
+        </div>
+
+        <div class="hero-proof">
+          <div class="proof-stat">
+            <span class="proof-num">120<span style="color:var(--orange)">+</span></span>
+            <span class="proof-label">Brands Built</span>
+          </div>
+          <div class="proof-divider"></div>
+          <div class="proof-stat">
+            <span class="proof-num">340<span style="color:var(--orange)">+</span></span>
+            <span class="proof-label">Campaigns Launched</span>
+          </div>
+          <div class="proof-divider"></div>
+          <div class="proof-stat">
+            <span class="proof-num">6<span style="color:var(--orange)">×</span></span>
+            <span class="proof-label">Avg. ROI Delivered</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Visual -->
+      <div class="hero-visual" id="hero-visual">
+
+        <!-- Floating Stat Cards -->
+        <div class="float-card float-card-1" id="fc1">
+          <div class="float-icon orange"><i class="ri-bar-chart-grouped-line"></i></div>
+          <div class="float-info">
+            <span class="float-val">+847%</span>
+            <span class="float-lbl">Engagement Growth</span>
+          </div>
+        </div>
+
+        <div class="float-card float-card-2" id="fc2">
+          <div class="float-icon blue"><i class="ri-global-line"></i></div>
+          <div class="float-info">
+            <span class="float-val">2.4M+</span>
+            <span class="float-lbl">Reach Generated</span>
+          </div>
+        </div>
+
+        <div class="float-card float-card-3" id="fc3">
+          <div class="float-icon green"><i class="ri-shield-check-line"></i></div>
+          <div class="float-info">
+            <span class="float-val">5★ Rated</span>
+            <span class="float-lbl">Client Satisfaction</span>
+          </div>
+        </div>
+
+        <!-- Orbiting Rings -->
+        <div class="orbit-container">
+          <div class="orbit-ring ring-1"><span class="orbit-dot"></span></div>
+          <div class="orbit-ring ring-2"><span class="orbit-dot"></span></div>
+          <div class="orbit-ring ring-3"><span class="orbit-dot"></span></div>
+
+          <!-- Center Orb -->
+          <div class="hero-orb">VRTX</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scroll Cue -->
+    <div class="scroll-cue">
+      <div class="scroll-mouse"><div class="scroll-wheel"></div></div>
+      <span class="scroll-label">Scroll</span>
+    </div>
+  </section>
+
+  <!-- ═══ MARQUEE ═══ -->
+  <div class="marquee-wrap">
+    <div class="marquee-row">
+      <div class="marquee-track" id="mq1">
+        <span>Brand Strategy</span><span>Visual Identity</span><span>Logo Design</span>
+        <span>Art Direction</span><span>Campaign Concepts</span><span>Packaging Design</span>
+        <span>Graphic Design</span><span>Brand Strategy</span><span>Visual Identity</span>
+        <span>Logo Design</span><span>Art Direction</span><span>Campaign Concepts</span>
+        <span>Packaging Design</span><span>Graphic Design</span>
+      </div>
+    </div>
+    <div class="marquee-row">
+      <div class="marquee-track rtl" id="mq2">
+        <span>Social Media</span><span>Meta Ads</span><span>Google Ads</span>
+        <span>TikTok Ads</span><span>Performance Marketing</span><span>Influencer Marketing</span>
+        <span>Content Strategy</span><span>Social Media</span><span>Meta Ads</span>
+        <span>Google Ads</span><span>TikTok Ads</span><span>Performance Marketing</span>
+        <span>Influencer Marketing</span><span>Content Strategy</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ STATS ═══ -->
+  <section class="stats-section">
+    <div class="container">
+      <div class="stats-grid">
+        <div class="stat-block">
+          <div class="stat-icon"><i class="ri-trophy-line"></i></div>
+          <div class="stat-num" data-target="120" data-suffix="+">0</div>
+          <div class="stat-desc">Brands Built</div>
+        </div>
+        <div class="stat-block">
+          <div class="stat-icon"><i class="ri-rocket-2-line"></i></div>
+          <div class="stat-num" data-target="340" data-suffix="+">0</div>
+          <div class="stat-desc">Campaigns Launched</div>
+        </div>
+        <div class="stat-block">
+          <div class="stat-icon"><i class="ri-line-chart-line"></i></div>
+          <div class="stat-num" data-target="6" data-suffix="×">0</div>
+          <div class="stat-desc">Average ROI Multiplier</div>
+        </div>
+        <div class="stat-block">
+          <div class="stat-icon"><i class="ri-calendar-check-line"></i></div>
+          <div class="stat-num" data-target="5" data-suffix="+">0</div>
+          <div class="stat-desc">Years of Excellence</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ SERVICES ═══ -->
+  <section id="services" class="section services">
+    <div class="container">
+      <div class="services-intro">
+        <div class="left">
+          <div class="section-eyebrow"><span class="dot"></span> What We Do</div>
+          <h2 class="section-title">Four Pillars.<br><span class="gradient-text">Infinite Impact.</span></h2>
+          <p class="section-sub">
+            Everything your brand needs to grow, dominate, and scale — under one roof. 
+            We don't do average. We do unforgettable.
+          </p>
+        </div>
+        <a href="#contact" class="btn btn-outline">
+          Start a Project <i class="ri-arrow-right-line"></i>
+        </a>
+      </div>
+
+      <!-- Pillar Tabs -->
+      <div class="pillar-tabs" role="tablist">
+        <button class="ptab active" data-panel="brand"     role="tab">🎨 Brand</button>
+        <button class="ptab"        data-panel="marketing" role="tab">📱 Marketing</button>
+        <button class="ptab"        data-panel="content"   role="tab">🎥 Content</button>
+        <button class="ptab"        data-panel="digital"   role="tab">💻 Digital</button>
+      </div>
+
+      <!-- Pillar Panels -->
+      <div class="pillar-panels">
+
+        <!-- ── PANEL 1: BRAND ── -->
+        <div class="pillar-panel active" id="panel-brand">
+          <div class="pillar-layout">
+            <div class="pillar-info">
+              <span class="pillar-num">01</span>
+              <div class="pillar-icon-wrap"><i class="ri-palette-line"></i></div>
+              <h3 class="pillar-title">Brand Strategy &amp;<br>Identity</h3>
+              <p class="pillar-desc">
+                We shape the soul of your brand. From the first sketch to the final brand book — 
+                we craft identities that are unmistakable, strategic, and built to last. 
+                Your brand will not just exist — it will command attention.
+              </p>
+              <a href="#contact" class="btn btn-orange pillar-cta">
+                Build My Brand <i class="ri-arrow-right-line"></i>
+              </a>
+            </div>
+            <div class="sub-services-grid">
+              <div class="sub-card">
+                <div class="sub-icon"><i class="ri-compass-3-line"></i></div>
+                <div class="sub-name">Brand Strategy</div>
+                <div class="sub-hint">Vision, positioning & market fit</div>
+              </div>
+              <div class="sub-card">
+                <div class="sub-icon"><i class="ri-fingerprint-line"></i></div>
+                <div class="sub-name">Brand Identity</div>
+                <div class="sub-hint">Full identity systems & brand books</div>
+              </div>
+              <div class="sub-card">
+                <div class="sub-icon"><i class="ri-star-line"></i></div>
+                <div class="sub-name">Logo Design</div>
+                <div class="sub-hint">Mark, wordmark & symbol design</div>
+              </div>
+              <div class="sub-card">
+                <div class="sub-icon"><i class="ri-eye-2-line"></i></div>
+                <div class="sub-name">Visual Identity</div>
+                <div class="sub-hint">Colors, typography & visual language</div>
+              </div>
+              <div class="sub-card">
+                <div class="sub-icon"><i class="ri-brush-2-line"></i></div>
+                <div class="sub-name">Graphic Design</div>
+                <div class="sub-hint">Print, digital & marketing materials</div>
+              </div>
+              <div class="sub-card">
+                <div class="sub-icon"><i class="ri-layout-masonry-line"></i></div>
+                <div class="sub-name">Art Direction</div>
+                <div class="sub-hint">Creative vision & visual storytelling</div>
+              </div>
+              <div class="sub-card">
+                <div class="sub-icon"><i class="ri-megaphone-line"></i></div>
+                <div class="sub-name">Campaign Concepts</div>
+                <div class="sub-hint">Big ideas that move markets</div>
+              </div>
+              <div class="sub-card">
+                <div class="sub-icon"><i class="ri-gift-2-line"></i></div>
+                <div class="sub-name">Packaging Design</div>
+                <div class="sub-hint">Products that stand out on shelf</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── PANEL 2: MARKETING ── -->
+        <div class="pillar-panel" id="panel-marketing">
+          <div class="pillar-layout">
+            <div class="pillar-info">
+              <span class="pillar-num">02</span>
+              <div class="pillar-icon-wrap"><i class="ri-line-chart-line"></i></div>
+              <h3 class="pillar-title">Marketing &amp;<br>Advertising</h3>
+              <p class="pillar-desc">
+                We put your brand in front of the right people at the right time — and we make them act. 
+                Performance-obsessed, data-driven, and relentlessly creative. 
+                Your ads won't just run — they'll dominate.
+              </p>
+              <a href="#contact" class="btn btn-orange pillar-cta">
+                Launch Campaign <i class="ri-arrow-right-line"></i>
+              </a>
+            </div>
+            <div class="sub-services-grid">
+              <div class="sub-card">
+                <div class="sub-icon"><i class="ri-instagram-line"></i></div>
+                <div class="sub-name">Social Media Marketing</div>
+                <div class="sub-hint">Growth, management & community</div>
+              </div>
+              <div class="sub-card">
+                <div class="sub-icon"><i class="ri-article-line"></i></div>
+                <div class="sub-name">Content Strategy</div>
+                <div class="sub-hint">Content plans that convert</div>
+              </div>
+              <div class="sub-card">
+                <div class="sub-icon"><i class="ri-facebook-box-line"></i></div>
+                <div class="sub-name">Meta Ads</div>
+                <div class="sub-hint">FB & IG paid campaigns</div>
+              </div>
+              <div class="sub-card">
+                <div class="sub-icon"><i class="ri-search-line"></i></div>
+                <div class="sub-name">Google Ads</div>
+                <div class="sub-hint">Search, display & YouTube</div>
+              </div>
+              <div class="sub-card">
+                <div class="sub-icon"><i class="ri-tiktok-line"></i></div>
+                <div class="sub-name">TikTok Ads</div>
+                <div class="sub-hint">Viral-first paid performance</div>
+              </div>
+              <div class="sub-card">
+                <div class="sub-icon"><i class="ri-bar-chart-2-line"></i></div>
+                <div class="sub-name">Performance Marketing</div>
+                <div class="sub-hint">ROI-focused, full-funnel strategy</div>
+              </div>
+              <div class="sub-card">
+                <div class="sub-icon"><i class="ri-user-star-line"></i></div>
+                <div class="sub-name">Influencer Marketing</div>
+                <div class="sub-hint">Partnerships that drive real reach</div>
+              </div>
+              <div class="sub-card">
+                <div class="sub-icon"><i class="ri-calendar-event-line"></i></div>
+                <div class="sub-name">Campaign Management</div>
+                <div class="sub-hint">End-to-end campaign execution</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── PANEL 3: CONTENT ── -->
+        <div class="pillar-panel" id="panel-content">
+          <div class="pillar-layout">
+            <div class="pillar-info">
+              <span class="pillar-num">03</span>
+              <div class="pillar-icon-wrap"><i class="ri-vidicon-2-line"></i></div>
+              <h3 class="pillar-title">Content<br>Production</h3>
+              <p class="pillar-desc">
+                Scroll-stopping content that makes your audience pause, watch, and share. 
+                From studio shoots to cinematic commercials — we produce content that 
+                doesn't just look good, it converts.
+              </p>
+              <a href="#contact" class="btn btn-orange pillar-cta">
+                Produce Content <i class="ri-arrow-right-line"></i>
+              </a>
+            </div>
+            <div class="sub-services-grid">
+              <div class="sub-card">
+                <div class="sub-icon"><i class="ri-camera-3-line"></i></div>
+                <div class="sub-name">Photography</div>
+                <div class="sub-hint">Brand, product & editorial shoots</div>
+              </div>
+              <div class="sub-card">
+                <div class="sub-icon"><i class="ri-film-line"></i></div>
+                <div class="sub-name">Videography</div>
+                <div class="sub-hint">Cinematic brand videos</div>
+              </div>
+              <div class="sub-card">
+                <div class="sub-icon"><i class="ri-tv-2-line"></i></div>
+                <div class="sub-name">Commercials</div>
+                <div class="sub-hint">TV & digital ad production</div>
+              </div>
+              <div class="sub-card">
+                <div class="sub-icon"><i class="ri-play-circle-line"></i></div>
+                <div class="sub-name">Reels & Short-Form</div>
+                <div class="sub-hint">TikTok, Reels & Shorts content</div>
+              </div>
+              <div class="sub-card">
+                <div class="sub-icon"><i class="ri-grid-line"></i></div>
+                <div class="sub-name">Social Media Content</div>
+                <div class="sub-hint">Feed posts, stories & carousels</div>
+              </div>
+              <div class="sub-card">
+                <div class="sub-icon"><i class="ri-archive-drawer-line"></i></div>
+                <div class="sub-name">Product Shoots</div>
+                <div class="sub-hint">E-commerce & campaign imagery</div>
+              </div>
+              <div class="sub-card blue-accent">
+                <div class="sub-icon blue"><i class="ri-loader-3-line"></i></div>
+                <div class="sub-name">Motion Graphics</div>
+                <div class="sub-hint">Animated visuals & brand intros</div>
+              </div>
+              <div class="sub-card blue-accent">
+                <div class="sub-icon blue"><i class="ri-sound-module-line"></i></div>
+                <div class="sub-name">Post-Production</div>
+                <div class="sub-hint">Editing, color grading & VFX</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── PANEL 4: DIGITAL ── -->
+        <div class="pillar-panel" id="panel-digital">
+          <div class="pillar-layout">
+            <div class="pillar-info">
+              <span class="pillar-num">04</span>
+              <div class="pillar-icon-wrap blue-icon"><i class="ri-code-s-slash-line"></i></div>
+              <h3 class="pillar-title">Digital &amp;<br>Technology</h3>
+              <p class="pillar-desc">
+                Your digital edge. We engineer websites, apps, and automated systems 
+                that don't just work — they accelerate your business. 
+                Built for speed, scale, and measurable results.
+              </p>
+              <a href="#contact" class="btn btn-blue pillar-cta">
+                Build My Platform <i class="ri-arrow-right-line"></i>
+              </a>
+            </div>
+            <div class="sub-services-grid">
+              <div class="sub-card blue-accent">
+                <div class="sub-icon blue"><i class="ri-global-line"></i></div>
+                <div class="sub-name">Website Development</div>
+                <div class="sub-hint">Fast, modern & high-converting</div>
+              </div>
+              <div class="sub-card blue-accent">
+                <div class="sub-icon blue"><i class="ri-store-2-line"></i></div>
+                <div class="sub-name">E-Commerce Websites</div>
+                <div class="sub-hint">Shops that sell while you sleep</div>
+              </div>
+              <div class="sub-card blue-accent">
+                <div class="sub-icon blue"><i class="ri-layout-line"></i></div>
+                <div class="sub-name">Landing Pages</div>
+                <div class="sub-hint">High-conversion campaign pages</div>
+              </div>
+              <div class="sub-card blue-accent">
+                <div class="sub-icon blue"><i class="ri-apps-line"></i></div>
+                <div class="sub-name">Web Applications</div>
+                <div class="sub-hint">Custom portals & platforms</div>
+              </div>
+              <div class="sub-card blue-accent">
+                <div class="sub-icon blue"><i class="ri-customer-service-2-line"></i></div>
+                <div class="sub-name">CRM Systems</div>
+                <div class="sub-hint">Custom CRM & lead management</div>
+              </div>
+              <div class="sub-card blue-accent">
+                <div class="sub-icon blue"><i class="ri-robot-line"></i></div>
+                <div class="sub-name">Automation</div>
+                <div class="sub-hint">Workflows, bots & integrations</div>
+              </div>
+              <div class="sub-card blue-accent">
+                <div class="sub-icon blue"><i class="ri-pie-chart-2-line"></i></div>
+                <div class="sub-name">Analytics & Dashboards</div>
+                <div class="sub-hint">Data visibility & business intel</div>
+              </div>
+              <div class="sub-card blue-accent">
+                <div class="sub-icon blue"><i class="ri-links-line"></i></div>
+                <div class="sub-name">Digital Integrations</div>
+                <div class="sub-hint">API connections & third-party tools</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ HOW WE WORK ═══ -->
+  <section id="process" class="section process">
+    <div class="container">
+      <div class="text-center">
+        <div class="section-eyebrow" style="justify-content:center;"><span class="dot"></span> Our Process</div>
+        <h2 class="section-title">How We Turn <span class="gradient-text">Vision</span> Into Victory</h2>
+        <p class="section-sub">
+          A proven 4-step process that takes you from idea to impact — with zero guesswork 
+          and maximum results at every stage.
+        </p>
+      </div>
+
+      <div class="process-grid">
+        <div class="process-step">
+          <div class="step-circle orange">01</div>
+          <h4 class="step-title">Discover & Define</h4>
+          <p class="step-desc">
+            We deep-dive into your brand, market, audience, and competitors. 
+            No assumptions — only data-backed clarity and sharp strategy.
+          </p>
+        </div>
+        <div class="process-step">
+          <div class="step-circle blue">02</div>
+          <h4 class="step-title">Strategize & Design</h4>
+          <p class="step-desc">
+            We craft the full creative concept — from brand direction to content calendars 
+            to wireframes — all aligned with your business goals.
+          </p>
+        </div>
+        <div class="process-step">
+          <div class="step-circle orange">03</div>
+          <h4 class="step-title">Build & Execute</h4>
+          <p class="step-desc">
+            Our production team brings it all to life — pixel-perfect designs, 
+            cinematic content, high-performance code, and live campaigns.
+          </p>
+        </div>
+        <div class="process-step">
+          <div class="step-circle blue">04</div>
+          <h4 class="step-title">Optimize & Scale</h4>
+          <p class="step-desc">
+            We track, analyze, and relentlessly optimize. What works gets amplified. 
+            Your brand keeps growing and your ROI keeps climbing.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ PORTFOLIO / WORK ═══ -->
+  <section id="work" class="section">
+    <div class="container">
+      <div class="text-center">
+        <div class="section-eyebrow" style="justify-content:center;"><span class="dot"></span> Selected Work</div>
+        <h2 class="section-title">Projects That <span class="gradient-text">Made Noise</span></h2>
+        <p class="section-sub">
+          A glimpse of what we've built for bold brands. 
+          Every project tells a story — here are a few of ours.
+        </p>
+      </div>
+
+      <!-- Filter -->
+      <div class="portfolio-filter" role="group" aria-label="Filter work">
+        <button class="filter-btn active" data-filter="all"       id="filter-all">All</button>
+        <button class="filter-btn"        data-filter="brand"     id="filter-brand">Brand</button>
+        <button class="filter-btn"        data-filter="marketing" id="filter-marketing">Marketing</button>
+        <button class="filter-btn"        data-filter="content"   id="filter-content">Content</button>
+        <button class="filter-btn"        data-filter="digital"   id="filter-digital">Digital</button>
+      </div>
+
+      <div class="portfolio-grid" id="portfolio-grid">
+
+        <!-- Item 1 -->
+        <div class="port-item" data-cat="brand" id="port-1">
+          <div class="port-thumb">
+            <div class="port-thumb-bg port-bg-1">
+              <div class="port-mock">
+                <div class="port-mock-icon">🔥</div>
+                <div class="port-mock-title">IGNIS — Brand Identity</div>
+              </div>
+            </div>
+            <div class="port-overlay">
+              <span class="port-overlay-label">Brand Identity</span>
+              <span class="port-overlay-title">IGNIS Energy</span>
+              <div class="port-overlay-btn"><i class="ri-arrow-right-up-line"></i></div>
+            </div>
+          </div>
+          <div class="port-info">
+            <div>
+              <div class="port-category">Brand Identity</div>
+              <div class="port-name">IGNIS Energy Drink</div>
+            </div>
+            <div class="port-arrow"><i class="ri-arrow-right-up-line"></i></div>
+          </div>
+        </div>
+
+        <!-- Item 2 -->
+        <div class="port-item" data-cat="marketing" id="port-2">
+          <div class="port-thumb">
+            <div class="port-thumb-bg port-bg-2">
+              <div class="port-mock">
+                <div class="port-mock-icon">📈</div>
+                <div class="port-mock-title">NEXO — Meta Campaign</div>
+              </div>
+            </div>
+            <div class="port-overlay">
+              <span class="port-overlay-label">Performance Marketing</span>
+              <span class="port-overlay-title">NEXO Finance</span>
+              <div class="port-overlay-btn"><i class="ri-arrow-right-up-line"></i></div>
+            </div>
+          </div>
+          <div class="port-info">
+            <div>
+              <div class="port-category">Performance Marketing</div>
+              <div class="port-name">NEXO Finance — Meta Ads</div>
+            </div>
+            <div class="port-arrow"><i class="ri-arrow-right-up-line"></i></div>
+          </div>
+        </div>
+
+        <!-- Item 3 -->
+        <div class="port-item" data-cat="content" id="port-3">
+          <div class="port-thumb">
+            <div class="port-thumb-bg port-bg-3">
+              <div class="port-mock">
+                <div class="port-mock-icon">🎬</div>
+                <div class="port-mock-title">AUROVA — Commercial</div>
+              </div>
+            </div>
+            <div class="port-overlay">
+              <span class="port-overlay-label">Content Production</span>
+              <span class="port-overlay-title">AUROVA Fashion</span>
+              <div class="port-overlay-btn"><i class="ri-arrow-right-up-line"></i></div>
+            </div>
+          </div>
+          <div class="port-info">
+            <div>
+              <div class="port-category">Content Production</div>
+              <div class="port-name">AUROVA Fashion — Brand Film</div>
+            </div>
+            <div class="port-arrow"><i class="ri-arrow-right-up-line"></i></div>
+          </div>
+        </div>
+
+        <!-- Item 4 -->
+        <div class="port-item" data-cat="digital" id="port-4">
+          <div class="port-thumb">
+            <div class="port-thumb-bg port-bg-4">
+              <div class="port-mock">
+                <div class="port-mock-icon">💻</div>
+                <div class="port-mock-title">KOVA — E-Commerce</div>
+              </div>
+            </div>
+            <div class="port-overlay">
+              <span class="port-overlay-label">Digital & Technology</span>
+              <span class="port-overlay-title">KOVA Store</span>
+              <div class="port-overlay-btn"><i class="ri-arrow-right-up-line"></i></div>
+            </div>
+          </div>
+          <div class="port-info">
+            <div>
+              <div class="port-category">E-Commerce Development</div>
+              <div class="port-name">KOVA Premium Store</div>
+            </div>
+            <div class="port-arrow"><i class="ri-arrow-right-up-line"></i></div>
+          </div>
+        </div>
+
+      </div><!-- /portfolio-grid -->
+    </div>
+  </section>
+
+  <!-- ═══ CONTACT ═══ -->
+  <section id="contact" class="section contact">
+    <div class="container">
+      <div class="text-center" style="margin-bottom:60px;">
+        <div class="section-eyebrow" style="justify-content:center;"><span class="dot"></span> Let's Talk</div>
+        <h2 class="section-title">Ready to <span class="gradient-text">Command</span> Your Market?</h2>
+        <p class="section-sub">Tell us about your project and we'll come back within 24 hours with a strategy that will blow your mind.</p>
+      </div>
+
+      <div class="contact-box">
+
+        <!-- Info -->
+        <div class="contact-info">
+          <h3 class="contact-info-title">Let's Build <span class="gradient-text">Something Legendary.</span></h3>
+          <p class="contact-info-sub">
+            Whether you're launching a brand from scratch, scaling an existing business, 
+            or need a full digital overhaul — we've got you. No project is too bold. 
+            No ambition is too big.
+          </p>
+
+          <div class="contact-channels">
+            <a href="mailto:hello@vortxa.com" class="channel">
+              <div class="channel-icon"><i class="ri-mail-send-line"></i></div>
+              <span class="channel-text">hello@vortxa.com</span>
+            </a>
+            <a href="tel:+201000000000" class="channel">
+              <div class="channel-icon"><i class="ri-phone-line"></i></div>
+              <span class="channel-text">+20 100 000 0000</span>
+            </a>
+            <div class="channel">
+              <div class="channel-icon"><i class="ri-map-pin-2-line"></i></div>
+              <span class="channel-text">Cairo, Egypt · Remote Worldwide</span>
+            </div>
+          </div>
+
+          <a href="https://wa.me/201000000000?text=Hi%20VORTXA%2C%20I%20want%20to%20discuss%20a%20project!"
+             class="whatsapp-btn" target="_blank" rel="noopener">
+            <i class="ri-whatsapp-line"></i>
+            Chat on WhatsApp — It's Fast!
+          </a>
+        </div>
+
+        <!-- Form -->
+        <form class="contact-form" id="contact-form" novalidate>
+          <div class="form-row">
+            <div class="field-group">
+              <label for="cf-name">Your Name</label>
+              <input type="text" id="cf-name" placeholder="Ahmed Mohamed" required>
+            </div>
+            <div class="field-group">
+              <label for="cf-email">Email Address</label>
+              <input type="email" id="cf-email" placeholder="ahmed@company.com" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="field-group">
+              <label for="cf-phone">Phone / WhatsApp</label>
+              <input type="tel" id="cf-phone" placeholder="+20 1XX XXX XXXX">
+            </div>
+            <div class="field-group">
+              <label for="cf-service">Service Interested In</label>
+              <select id="cf-service">
+                <option value="">Choose a pillar...</option>
+                <option value="brand">🎨 Brand Strategy & Identity</option>
+                <option value="marketing">📱 Marketing & Advertising</option>
+                <option value="content">🎥 Content Production</option>
+                <option value="digital">💻 Digital & Technology</option>
+                <option value="full">🔥 Full-Service Package</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label for="cf-budget">Project Budget (Optional)</label>
+            <select id="cf-budget">
+              <option value="">Prefer not to say</option>
+              <option value="5k">Under $5,000</option>
+              <option value="10k">$5,000 – $10,000</option>
+              <option value="25k">$10,000 – $25,000</option>
+              <option value="50k">$25,000 – $50,000</option>
+              <option value="50k+">$50,000+</option>
+            </select>
+          </div>
+
+          <div class="field-group">
+            <label for="cf-msg">Tell Us About Your Vision</label>
+            <textarea id="cf-msg" rows="5" placeholder="Describe your brand, goals, timeline, and what you want to achieve..." required></textarea>
+          </div>
+
+          <div class="form-submit-row">
+            <button type="submit" class="btn btn-orange btn-lg" id="submit-btn">
+              <i class="ri-send-plane-2-fill"></i>
+              Send My Inquiry
+            </button>
+            <span class="form-note"><i class="ri-shield-check-line"></i> We reply within 24 hours. No spam, ever.</span>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ FOOTER ═══ -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-main">
+
+        <!-- Brand Col -->
+        <div class="footer-brand-col">
+          <a href="#home" class="logo footer-logo">
+            <div class="logo-mark">◈</div>
+            <span class="logo-text">VORT<span>XA</span></span>
+          </a>
+          <p class="footer-tagline">
+            Four pillars. Infinite impact. We build brands that command markets — from Cairo to the world.
+          </p>
+          <div class="footer-social">
+            <a href="#" class="social-icon" aria-label="Instagram"><i class="ri-instagram-line"></i></a>
+            <a href="#" class="social-icon" aria-label="TikTok"><i class="ri-tiktok-line"></i></a>
+            <a href="#" class="social-icon" aria-label="LinkedIn"><i class="ri-linkedin-line"></i></a>
+            <a href="#" class="social-icon" aria-label="Facebook"><i class="ri-facebook-line"></i></a>
+            <a href="#" class="social-icon" aria-label="Behance"><i class="ri-behance-line"></i></a>
+          </div>
+        </div>
+
+        <!-- Brand Services -->
+        <div class="footer-col">
+          <h5>🎨 Brand</h5>
+          <ul>
+            <li><a href="#services">Brand Strategy</a></li>
+            <li><a href="#services">Brand Identity</a></li>
+            <li><a href="#services">Logo Design</a></li>
+            <li><a href="#services">Visual Identity</a></li>
+            <li><a href="#services">Packaging Design</a></li>
+          </ul>
+        </div>
+
+        <!-- Marketing Services -->
+        <div class="footer-col">
+          <h5>📱 Marketing</h5>
+          <ul>
+            <li><a href="#services">Social Media</a></li>
+            <li><a href="#services">Meta Ads</a></li>
+            <li><a href="#services">Google Ads</a></li>
+            <li><a href="#services">TikTok Ads</a></li>
+            <li><a href="#services">Influencer Marketing</a></li>
+          </ul>
+        </div>
+
+        <!-- Content Services -->
+        <div class="footer-col">
+          <h5>🎥 Content</h5>
+          <ul>
+            <li><a href="#services">Photography</a></li>
+            <li><a href="#services">Videography</a></li>
+            <li><a href="#services">Commercials</a></li>
+            <li><a href="#services">Reels & Short-Form</a></li>
+            <li><a href="#services">Motion Graphics</a></li>
+          </ul>
+        </div>
+
+        <!-- Digital Services -->
+        <div class="footer-col">
+          <h5>💻 Digital</h5>
+          <ul>
+            <li><a href="#services">Website Dev</a></li>
+            <li><a href="#services">E-Commerce</a></li>
+            <li><a href="#services">Web Apps</a></li>
+            <li><a href="#services">Automation</a></li>
+            <li><a href="#services">Analytics</a></li>
+          </ul>
+        </div>
+
+      </div><!-- /footer-main -->
+
+      <div class="footer-bottom">
+        <span class="footer-copy">
+          © 2026 <span>VORTXA</span>. All rights reserved. Built with passion in Cairo 🔥
+        </span>
+        <div class="footer-legal">
+          <a href="#">Privacy Policy</a>
+          <a href="#">Terms of Service</a>
+          <a href="#">Cookie Policy</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ═══ SCRIPTS ═══ -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="script.js"></script>
+
+</body>
+</html>
