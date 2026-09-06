@@ -3,7 +3,7 @@
    Bold & Energetic | Obsidian × Blaze Orange × Electric Blue
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600&family=Bebas+Neue&display=swap');
 
 /* ── ROOT TOKENS ── */
 :root {
@@ -295,16 +295,17 @@ input, textarea, button { font-family: inherit; }
   gap: 24px;
 }
 
-/* Logo */
+/* Logo — Monster Energy Style */
 .logo {
-  font-family: var(--ff-head);
-  font-size: 1.6rem;
-  font-weight: 900;
-  letter-spacing: -1px;
+  font-family: 'Bebas Neue', 'Outfit', sans-serif;
+  font-size: 2rem;
+  font-weight: 400;
+  letter-spacing: 2px;
   display: flex;
   align-items: center;
   gap: 10px;
   flex-shrink: 0;
+  text-decoration: none;
 }
 
 .logo-mark {
@@ -318,8 +319,24 @@ input, textarea, button { font-family: inherit; }
   flex-shrink: 0;
 }
 
-.logo-text { color: var(--text-100); }
-.logo-text span { color: var(--orange); }
+/* Logo text: purple fill + orange stroke outline */
+.logo-text {
+  color: #7B2FBE;
+  -webkit-text-stroke: 1.5px #FF6B00;
+  text-shadow:
+    0 0 12px rgba(123, 47, 190, 0.5),
+    0 0 24px rgba(255, 107, 0, 0.2);
+  line-height: 1;
+}
+
+/* The special "A" — orange fill + purple stroke */
+.logo-a {
+  color: #FF6B00;
+  -webkit-text-stroke: 1.5px #7B2FBE;
+  text-shadow:
+    0 0 12px rgba(255, 107, 0, 0.6),
+    0 0 24px rgba(123, 47, 190, 0.3);
+}
 
 /* Nav Links */
 .nav-links {

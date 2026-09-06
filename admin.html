@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VORTXA Admin — Project Management</title>
+  <meta name="description" content="VORTXA internal admin panel for managing client projects, team assignments, and payment tracking.">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="admin.css">
+</head>
+
+<body>
+
+  <!-- Ambient Backgrounds -->
+  <div class="bg-orb orb-1"></div>
+  <div class="bg-orb orb-2"></div>
+  <div class="bg-orb orb-3"></div>
+  <div class="bg-grid"></div>
+
+  <!-- ═══ SIDEBAR ═══ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <a href="#" class="sidebar-logo">
+        <div class="logo-icon">◈</div>
+        <span class="logo-text">VORT<span>XA</span></span>
+      </a>
+      <button class="sidebar-toggle" id="sidebarToggle" title="Toggle Sidebar">
+        <i class="ri-menu-fold-line"></i>
+      </button>
+    </div>
+
+    <div class="sidebar-user">
+      <div class="user-avatar">
+        <i class="ri-shield-star-fill"></i>
+      </div>
+      <div class="user-info">
+        <span class="user-name">Admin Panel</span>
+        <span class="user-role">Super Administrator</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main</div>
+      <button class="nav-item active" data-section="dashboard" onclick="switchSection('dashboard')">
+        <span class="nav-icon"><i class="ri-dashboard-3-fill"></i></span>
+        <span class="nav-label">Dashboard</span>
+        <span class="nav-indicator"></span>
+      </button>
+      <button class="nav-item" data-section="projects" onclick="switchSection('projects')">
+        <span class="nav-icon"><i class="ri-folder-5-fill"></i></span>
+        <span class="nav-label">Projects</span>
+        <span class="nav-badge" id="projectsBadge">0</span>
+      </button>
+      <button class="nav-item" data-section="payments" onclick="switchSection('payments')">
+        <span class="nav-icon"><i class="ri-money-dollar-circle-fill"></i></span>
+        <span class="nav-label">Payments</span>
+        <span class="nav-badge unpaid" id="unpaidBadge">0</span>
+      </button>
+      <button class="nav-item" data-section="team" onclick="switchSection('team')">
+        <span class="nav-icon"><i class="ri-team-fill"></i></span>
+        <span class="nav-label">Team</span>
+      </button>
+
+      <div class="nav-section-label">Filters</div>
+      <button class="nav-item" data-section="projects" data-filter="active" onclick="switchSection('projects','active')">
+        <span class="nav-icon"><i class="ri-record-circle-fill" style="color:#10b981"></i></span>
+        <span class="nav-label">Active Projects</span>
+      </button>
+      <button class="nav-item" data-section="projects" data-filter="completed" onclick="switchSection('projects','completed')">
+        <span class="nav-icon"><i class="ri-checkbox-circle-fill" style="color:#8b5cf6"></i></span>
+        <span class="nav-label">Completed</span>
+      </button>
+      <button class="nav-item" data-section="projects" data-filter="on-hold" onclick="switchSection('projects','on-hold')">
+        <span class="nav-icon"><i class="ri-pause-circle-fill" style="color:#f59e0b"></i></span>
+        <span class="nav-label">On Hold</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="nav-item" onclick="exportData()">
+        <span class="nav-icon"><i class="ri-download-2-fill"></i></span>
+        <span class="nav-label">Export Data</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ═══ MAIN CONTENT ═══ -->
+  <main class="main" id="main">
+
+    <!-- Top Bar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="mobile-toggle" id="mobileToggle" onclick="toggleMobileSidebar()">
+          <i class="ri-menu-3-line"></i>
+        </button>
+        <div class="page-title">
+          <h1 id="pageTitle">Dashboard</h1>
+          <span id="pageSub">Welcome back, Admin</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <div class="search-box">
+          <i class="ri-search-2-line"></i>
+          <input type="text" id="globalSearch" placeholder="Search projects..." oninput="handleSearch(this.value)">
+        </div>
+        <button class="topbar-btn notification-btn" title="Notifications" id="notifBtn">
+          <i class="ri-notification-3-fill"></i>
+          <span class="notif-dot" id="notifDot"></span>
+        </button>
+        <button class="topbar-btn add-btn" onclick="openProjectModal()" title="Add New Project">
+          <i class="ri-add-line"></i>
+          <span>New Project</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- ── DASHBOARD SECTION ── -->
+    <section class="section active" id="section-dashboard">
+
+      <!-- KPI Cards -->
+      <div class="kpi-grid">
+        <div class="kpi-card kpi-projects">
+          <div class="kpi-icon">
+            <i class="ri-folder-5-fill"></i>
+          </div>
+          <div class="kpi-content">
+            <span class="kpi-label">Total Projects</span>
+            <span class="kpi-value" id="kpi-total">0</span>
+            <span class="kpi-sub" id="kpi-active-sub">0 active</span>
+          </div>
+          <div class="kpi-glow"></div>
+        </div>
+
+        <div class="kpi-card kpi-revenue">
+          <div class="kpi-icon">
+            <i class="ri-money-dollar-circle-fill"></i>
+          </div>
+          <div class="kpi-content">
+            <span class="kpi-label">Total Revenue</span>
+            <span class="kpi-value" id="kpi-revenue">$0</span>
+            <span class="kpi-sub">Contract value</span>
+          </div>
+          <div class="kpi-glow"></div>
+        </div>
+
+        <div class="kpi-card kpi-paid">
+          <div class="kpi-icon">
+            <i class="ri-checkbox-circle-fill"></i>
+          </div>
+          <div class="kpi-content">
+            <span class="kpi-label">Total Collected</span>
+            <span class="kpi-value" id="kpi-paid">$0</span>
+            <span class="kpi-sub">Amount received</span>
+          </div>
+          <div class="kpi-glow"></div>
+        </div>
+
+        <div class="kpi-card kpi-outstanding">
+          <div class="kpi-icon">
+            <i class="ri-alert-fill"></i>
+          </div>
+          <div class="kpi-content">
+            <span class="kpi-label">Outstanding</span>
+            <span class="kpi-value" id="kpi-outstanding">$0</span>
+            <span class="kpi-sub" id="kpi-unpaid-count">0 unpaid</span>
+          </div>
+          <div class="kpi-glow"></div>
+        </div>
+      </div>
+
+      <!-- Dashboard Body -->
+      <div class="dashboard-body">
+
+        <!-- Recent Projects -->
+        <div class="glass-card recent-projects-card">
+          <div class="card-header">
+            <h2 class="card-title"><i class="ri-time-line"></i> Recent Projects</h2>
+            <button class="card-action" onclick="switchSection('projects')">View All <i class="ri-arrow-right-line"></i></button>
+          </div>
+          <div class="projects-mini-list" id="recentProjectsList">
+            <div class="empty-state-mini">
+              <i class="ri-folder-add-line"></i>
+              <span>No projects yet. Add your first project!</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Payment Overview -->
+        <div class="glass-card payment-overview-card">
+          <div class="card-header">
+            <h2 class="card-title"><i class="ri-pie-chart-2-fill"></i> Payment Overview</h2>
+          </div>
+          <div class="payment-chart-area">
+            <div class="donut-container">
+              <svg viewBox="0 0 120 120" class="donut-chart" id="donutChart">
+                <circle cx="60" cy="60" r="45" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="14"/>
+                <circle cx="60" cy="60" r="45" fill="none" stroke="#8b5cf6" stroke-width="14"
+                  stroke-dasharray="0 283" stroke-linecap="round" transform="rotate(-90 60 60)"
+                  class="donut-paid" id="donutPaid"/>
+                <circle cx="60" cy="60" r="45" fill="none" stroke="#f59e0b" stroke-width="14"
+                  stroke-dasharray="0 283" stroke-linecap="round" transform="rotate(-90 60 60)"
+                  class="donut-partial" id="donutPartial"/>
+              </svg>
+              <div class="donut-center">
+                <span id="donutPct">0%</span>
+                <small>Collected</small>
+              </div>
+            </div>
+            <div class="payment-legend">
+              <div class="legend-item">
+                <span class="legend-dot" style="background:#8b5cf6"></span>
+                <span class="legend-label">Paid</span>
+                <span class="legend-val" id="legendPaid">$0</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-dot" style="background:#f59e0b"></span>
+                <span class="legend-label">Partial</span>
+                <span class="legend-val" id="legendPartial">$0</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-dot" style="background:rgba(255,255,255,0.15)"></span>
+                <span class="legend-label">Unpaid</span>
+                <span class="legend-val" id="legendUnpaid">$0</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Project Status Distribution -->
+        <div class="glass-card status-dist-card">
+          <div class="card-header">
+            <h2 class="card-title"><i class="ri-bar-chart-grouped-fill"></i> Project Status</h2>
+          </div>
+          <div class="status-bars" id="statusBars">
+            <div class="status-bar-row">
+              <span class="sbar-label"><i class="ri-record-circle-fill" style="color:#10b981"></i> Active</span>
+              <div class="sbar-track"><div class="sbar-fill" style="background:#10b981;width:0%" id="bar-active"></div></div>
+              <span class="sbar-count" id="count-active">0</span>
+            </div>
+            <div class="status-bar-row">
+              <span class="sbar-label"><i class="ri-loader-4-fill" style="color:#3b82f6"></i> In Progress</span>
+              <div class="sbar-track"><div class="sbar-fill" style="background:#3b82f6;width:0%" id="bar-inprogress"></div></div>
+              <span class="sbar-count" id="count-inprogress">0</span>
+            </div>
+            <div class="status-bar-row">
+              <span class="sbar-label"><i class="ri-checkbox-circle-fill" style="color:#8b5cf6"></i> Completed</span>
+              <div class="sbar-track"><div class="sbar-fill" style="background:#8b5cf6;width:0%" id="bar-completed"></div></div>
+              <span class="sbar-count" id="count-completed">0</span>
+            </div>
+            <div class="status-bar-row">
+              <span class="sbar-label"><i class="ri-pause-circle-fill" style="color:#f59e0b"></i> On Hold</span>
+              <div class="sbar-track"><div class="sbar-fill" style="background:#f59e0b;width:0%" id="bar-onhold"></div></div>
+              <span class="sbar-count" id="count-onhold">0</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Team Workload -->
+        <div class="glass-card team-workload-card">
+          <div class="card-header">
+            <h2 class="card-title"><i class="ri-team-fill"></i> Team Workload</h2>
+          </div>
+          <div class="workload-list" id="workloadList">
+            <div class="workload-item">
+              <div class="workload-role-icon dev">💻</div>
+              <div class="workload-info">
+                <span class="workload-role">Developer</span>
+                <div class="workload-bar-track"><div class="workload-bar-fill" style="background:linear-gradient(90deg,#3b82f6,#8b5cf6)" id="wb-dev"></div></div>
+              </div>
+              <span class="workload-count" id="wc-dev">0</span>
+            </div>
+            <div class="workload-item">
+              <div class="workload-role-icon content">✏️</div>
+              <div class="workload-info">
+                <span class="workload-role">Content Editor</span>
+                <div class="workload-bar-track"><div class="workload-bar-fill" style="background:linear-gradient(90deg,#10b981,#3b82f6)" id="wb-editor"></div></div>
+              </div>
+              <span class="workload-count" id="wc-editor">0</span>
+            </div>
+            <div class="workload-item">
+              <div class="workload-role-icon creator">🎬</div>
+              <div class="workload-info">
+                <span class="workload-role">Content Creator</span>
+                <div class="workload-bar-track"><div class="workload-bar-fill" style="background:linear-gradient(90deg,#ec4899,#f59e0b)" id="wb-creator"></div></div>
+              </div>
+              <span class="workload-count" id="wc-creator">0</span>
+            </div>
+            <div class="workload-item">
+              <div class="workload-role-icon designer">🎨</div>
+              <div class="workload-info">
+                <span class="workload-role">Graphic Designer</span>
+                <div class="workload-bar-track"><div class="workload-bar-fill" style="background:linear-gradient(90deg,#f59e0b,#ef4444)" id="wb-designer"></div></div>
+              </div>
+              <span class="workload-count" id="wc-designer">0</span>
+            </div>
+            <div class="workload-item">
+              <div class="workload-role-icon social">📱</div>
+              <div class="workload-info">
+                <span class="workload-role">Social Media Mgr</span>
+                <div class="workload-bar-track"><div class="workload-bar-fill" style="background:linear-gradient(90deg,#8b5cf6,#ec4899)" id="wb-social"></div></div>
+              </div>
+              <span class="workload-count" id="wc-social">0</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ── PROJECTS SECTION ── -->
+    <section class="section" id="section-projects">
+      <div class="section-toolbar">
+        <div class="filter-tabs" id="filterTabs">
+          <button class="filter-tab active" data-filter="all" onclick="filterProjects('all', this)">All</button>
+          <button class="filter-tab" data-filter="active" onclick="filterProjects('active', this)">Active</button>
+          <button class="filter-tab" data-filter="in-progress" onclick="filterProjects('in-progress', this)">In Progress</button>
+          <button class="filter-tab" data-filter="completed" onclick="filterProjects('completed', this)">Completed</button>
+          <button class="filter-tab" data-filter="on-hold" onclick="filterProjects('on-hold', this)">On Hold</button>
+        </div>
+        <button class="btn-primary" onclick="openProjectModal()">
+          <i class="ri-add-circle-fill"></i> Add Project
+        </button>
+      </div>
+
+      <div class="projects-grid" id="projectsGrid">
+        <!-- Project cards injected by JS -->
+      </div>
+
+      <div class="empty-state" id="projectsEmpty" style="display:none">
+        <div class="empty-icon">📂</div>
+        <h3>No Projects Found</h3>
+        <p>Add your first project to get started</p>
+        <button class="btn-primary" onclick="openProjectModal()"><i class="ri-add-circle-fill"></i> Add Project</button>
+      </div>
+    </section>
+
+    <!-- ── PAYMENTS SECTION ── -->
+    <section class="section" id="section-payments">
+      <div class="section-toolbar">
+        <div class="filter-tabs">
+          <button class="filter-tab active" onclick="filterPayments('all', this)">All</button>
+          <button class="filter-tab" onclick="filterPayments('paid', this)">✅ Paid</button>
+          <button class="filter-tab" onclick="filterPayments('partial', this)">🟡 Partial</button>
+          <button class="filter-tab" onclick="filterPayments('unpaid', this)">🔴 Unpaid</button>
+        </div>
+      </div>
+
+      <div class="glass-card payment-table-card">
+        <div class="table-responsive">
+          <table class="data-table" id="paymentTable">
+            <thead>
+              <tr>
+                <th>Project</th>
+                <th>Client</th>
+                <th>Total Value</th>
+                <th>Amount Paid</th>
+                <th>Outstanding</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="paymentTableBody">
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── TEAM SECTION ── -->
+    <section class="section" id="section-team">
+      <div class="team-roles-grid">
+
+        <div class="glass-card team-role-card">
+          <div class="team-role-header">
+            <div class="team-role-emoji">💻</div>
+            <div>
+              <h3>Developers</h3>
+              <span class="team-role-count" id="team-dev-count">0 Projects</span>
+            </div>
+          </div>
+          <div class="team-role-projects" id="team-dev-projects"></div>
+        </div>
+
+        <div class="glass-card team-role-card">
+          <div class="team-role-header">
+            <div class="team-role-emoji">✏️</div>
+            <div>
+              <h3>Content Editors</h3>
+              <span class="team-role-count" id="team-editor-count">0 Projects</span>
+            </div>
+          </div>
+          <div class="team-role-projects" id="team-editor-projects"></div>
+        </div>
+
+        <div class="glass-card team-role-card">
+          <div class="team-role-header">
+            <div class="team-role-emoji">🎬</div>
+            <div>
+              <h3>Content Creators</h3>
+              <span class="team-role-count" id="team-creator-count">0 Projects</span>
+            </div>
+          </div>
+          <div class="team-role-projects" id="team-creator-projects"></div>
+        </div>
+
+        <div class="glass-card team-role-card">
+          <div class="team-role-header">
+            <div class="team-role-emoji">🎨</div>
+            <div>
+              <h3>Graphic Designers</h3>
+              <span class="team-role-count" id="team-designer-count">0 Projects</span>
+            </div>
+          </div>
+          <div class="team-role-projects" id="team-designer-projects"></div>
+        </div>
+
+        <div class="glass-card team-role-card">
+          <div class="team-role-header">
+            <div class="team-role-emoji">📱</div>
+            <div>
+              <h3>Social Media Managers</h3>
+              <span class="team-role-count" id="team-social-count">0 Projects</span>
+            </div>
+          </div>
+          <div class="team-role-projects" id="team-social-projects"></div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ═══════════════════════════════════════════
+       ADD / EDIT PROJECT MODAL
+  ════════════════════════════════════════════ -->
+  <div class="modal-overlay" id="projectModal" onclick="closeOnBackdrop(event)">
+    <div class="modal-panel">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <div class="modal-title-icon"><i class="ri-folder-add-fill"></i></div>
+          <div>
+            <h2 id="modalTitle">New Project</h2>
+            <p id="modalSub">Fill in the project details below</p>
+          </div>
+        </div>
+        <button class="modal-close" onclick="closeProjectModal()"><i class="ri-close-line"></i></button>
+      </div>
+
+      <div class="modal-body">
+        <form id="projectForm" onsubmit="saveProject(event)">
+          <input type="hidden" id="projectId">
+
+          <!-- ── SECTION 1: CLIENT & PROJECT INFO ── -->
+          <div class="form-section">
+            <div class="form-section-title">
+              <i class="ri-information-fill"></i> Project Information
+            </div>
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label" for="clientName">
+                  <i class="ri-user-3-fill"></i> Client Name
+                </label>
+                <input type="text" id="clientName" class="form-input" placeholder="e.g. Pharaoh Brands Co." required>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="projectName">
+                  <i class="ri-folder-5-fill"></i> Project Name
+                </label>
+                <input type="text" id="projectName" class="form-input" placeholder="e.g. Brand Identity Launch" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="projectType">
+                  <i class="ri-price-tag-3-fill"></i> Project Type
+                </label>
+                <select id="projectType" class="form-input form-select">
+                  <option value="Social Media Marketing">📱 Social Media Marketing</option>
+                  <option value="Brand Identity">🎨 Brand Identity</option>
+                  <option value="Web Development">💻 Web Development</option>
+                  <option value="Content Production">🎬 Content Production</option>
+                  <option value="Full Package">📦 Full Package</option>
+                  <option value="SEO & Growth">📈 SEO & Growth</option>
+                  <option value="Ad Campaigns">📣 Ad Campaigns</option>
+                  <option value="Other">🔷 Other</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="projectStatus">
+                  <i class="ri-signal-wifi-fill"></i> Status
+                </label>
+                <select id="projectStatus" class="form-input form-select">
+                  <option value="active">🟢 Active</option>
+                  <option value="in-progress">🔵 In Progress</option>
+                  <option value="on-hold">🟡 On Hold</option>
+                  <option value="completed">✅ Completed</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="startDate">
+                  <i class="ri-calendar-fill"></i> Start Date
+                </label>
+                <input type="date" id="startDate" class="form-input" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="deadline">
+                  <i class="ri-calendar-close-fill"></i> Deadline
+                </label>
+                <input type="date" id="deadline" class="form-input">
+              </div>
+            </div>
+            <div class="form-group full-width">
+              <label class="form-label" for="projectNotes">
+                <i class="ri-file-text-fill"></i> Notes
+              </label>
+              <textarea id="projectNotes" class="form-input form-textarea" placeholder="Add project notes, scope, or special requirements..."></textarea>
+            </div>
+          </div>
+
+          <!-- ── SECTION 2: TEAM ASSIGNMENT ── -->
+          <div class="form-section">
+            <div class="form-section-title">
+              <i class="ri-team-fill"></i> Team Assignment
+            </div>
+            <div class="team-assignment-grid">
+
+              <div class="team-assign-card" id="assign-dev">
+                <div class="assign-role-header">
+                  <div class="assign-emoji">💻</div>
+                  <div class="assign-role-name">Developer</div>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="hasDev" onchange="toggleRole('dev')">
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+                <div class="assign-role-body" id="devBody" style="display:none">
+                  <input type="text" id="devName" class="form-input" placeholder="Developer name(s)">
+                  <input type="text" id="devTask" class="form-input" placeholder="Task / responsibility" style="margin-top:8px">
+                </div>
+              </div>
+
+              <div class="team-assign-card" id="assign-editor">
+                <div class="assign-role-header">
+                  <div class="assign-emoji">✏️</div>
+                  <div class="assign-role-name">Content Editor</div>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="hasEditor" onchange="toggleRole('editor')">
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+                <div class="assign-role-body" id="editorBody" style="display:none">
+                  <input type="text" id="editorName" class="form-input" placeholder="Editor name(s)">
+                  <input type="text" id="editorTask" class="form-input" placeholder="Task / responsibility" style="margin-top:8px">
+                </div>
+              </div>
+
+              <div class="team-assign-card" id="assign-creator">
+                <div class="assign-role-header">
+                  <div class="assign-emoji">🎬</div>
+                  <div class="assign-role-name">Content Creator</div>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="hasCreator" onchange="toggleRole('creator')">
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+                <div class="assign-role-body" id="creatorBody" style="display:none">
+                  <input type="text" id="creatorName" class="form-input" placeholder="Creator name(s)">
+                  <input type="text" id="creatorTask" class="form-input" placeholder="Task / responsibility" style="margin-top:8px">
+                </div>
+              </div>
+
+              <div class="team-assign-card" id="assign-designer">
+                <div class="assign-role-header">
+                  <div class="assign-emoji">🎨</div>
+                  <div class="assign-role-name">Graphic Designer</div>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="hasDesigner" onchange="toggleRole('designer')">
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+                <div class="assign-role-body" id="designerBody" style="display:none">
+                  <input type="text" id="designerName" class="form-input" placeholder="Designer name(s)">
+                  <input type="text" id="designerTask" class="form-input" placeholder="Task / responsibility" style="margin-top:8px">
+                </div>
+              </div>
+
+              <div class="team-assign-card" id="assign-social">
+                <div class="assign-role-header">
+                  <div class="assign-emoji">📱</div>
+                  <div class="assign-role-name">Social Media Mgr</div>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="hasSocial" onchange="toggleRole('social')">
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+                <div class="assign-role-body" id="socialBody" style="display:none">
+                  <input type="text" id="socialName" class="form-input" placeholder="Manager name(s)">
+                  <input type="text" id="socialTask" class="form-input" placeholder="Platforms / responsibility" style="margin-top:8px">
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- ── SECTION 3: PAYMENT ── -->
+          <div class="form-section">
+            <div class="form-section-title">
+              <i class="ri-money-dollar-circle-fill"></i> Payment Details
+            </div>
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label" for="totalPrice">
+                  <i class="ri-price-tag-3-fill"></i> Total Contract Value ($)
+                </label>
+                <input type="number" id="totalPrice" class="form-input" placeholder="0.00" min="0" step="0.01" required oninput="updatePaymentPreview()">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="amountPaid">
+                  <i class="ri-check-double-fill"></i> Amount Paid by Client ($)
+                </label>
+                <input type="number" id="amountPaid" class="form-input" placeholder="0.00" min="0" step="0.01" value="0" oninput="updatePaymentPreview()">
+              </div>
+            </div>
+
+            <!-- Payment Preview -->
+            <div class="payment-preview" id="paymentPreview">
+              <div class="payment-preview-item">
+                <span class="pp-label">Outstanding Balance</span>
+                <span class="pp-value outstanding" id="pp-outstanding">$0.00</span>
+              </div>
+              <div class="payment-preview-item">
+                <span class="pp-label">Payment Status</span>
+                <span class="pp-badge" id="pp-badge">Unpaid</span>
+              </div>
+              <div class="pp-progress-track">
+                <div class="pp-progress-fill" id="pp-progress" style="width:0%"></div>
+              </div>
+              <div class="pp-pct" id="pp-pct">0% collected</div>
+            </div>
+
+            <!-- Payment Log -->
+            <div class="payment-log-section">
+              <div class="payment-log-header">
+                <span><i class="ri-history-line"></i> Payment History</span>
+                <button type="button" class="btn-sm" onclick="addPaymentEntry()">
+                  <i class="ri-add-line"></i> Add Entry
+                </button>
+              </div>
+              <div class="payment-log-list" id="paymentLogList">
+                <div class="payment-log-empty">No payment entries yet</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" class="btn-ghost" onclick="closeProjectModal()">Cancel</button>
+            <button type="submit" class="btn-primary">
+              <i class="ri-save-3-fill"></i> Save Project
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       PROJECT DETAIL MODAL
+  ════════════════════════════════════════════ -->
+  <div class="modal-overlay" id="detailModal" onclick="closeOnBackdrop(event)">
+    <div class="modal-panel modal-panel-wide">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <div class="modal-title-icon" id="detailTypeIcon">📦</div>
+          <div>
+            <h2 id="detailProjectName">Project Name</h2>
+            <p id="detailClientName">Client Name</p>
+          </div>
+        </div>
+        <div class="detail-header-actions">
+          <button class="btn-sm" onclick="editFromDetail()"><i class="ri-edit-fill"></i> Edit</button>
+          <button class="modal-close" onclick="closeDetailModal()"><i class="ri-close-line"></i></button>
+        </div>
+      </div>
+      <div class="modal-body" id="detailModalBody">
+        <!-- Injected by JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       DELETE CONFIRM MODAL
+  ════════════════════════════════════════════ -->
+  <div class="modal-overlay" id="deleteModal" onclick="closeOnBackdrop(event)">
+    <div class="modal-panel modal-panel-sm">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <div class="modal-title-icon danger"><i class="ri-delete-bin-5-fill"></i></div>
+          <div>
+            <h2>Delete Project</h2>
+            <p>This action cannot be undone</p>
+          </div>
+        </div>
+        <button class="modal-close" onclick="closeDeleteModal()"><i class="ri-close-line"></i></button>
+      </div>
+      <div class="modal-body">
+        <p class="delete-confirm-text">Are you sure you want to delete <strong id="deleteProjectName"></strong>? All data including payment history will be permanently removed.</p>
+        <div class="modal-actions">
+          <button class="btn-ghost" onclick="closeDeleteModal()">Cancel</button>
+          <button class="btn-danger" onclick="confirmDelete()"><i class="ri-delete-bin-5-fill"></i> Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Scripts -->
+  <script src="admin.js"></script>
+</body>
+</html>
