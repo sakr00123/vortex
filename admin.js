@@ -38,10 +38,19 @@ document.addEventListener('DOMContentLoaded', () => {
   refreshAll();
 
   // Sidebar toggle
-  document.getElementById('sidebarToggle').addEventListener('click', () => {
-    document.querySelector('.sidebar').classList.toggle('collapsed');
-    document.body.classList.toggle('sidebar-collapsed');
-  });
+  const sbToggle = document.getElementById('sidebarToggle');
+  if (sbToggle) {
+    sbToggle.addEventListener('click', () => {
+      document.querySelector('.sidebar').classList.toggle('collapsed');
+      document.body.classList.toggle('sidebar-collapsed');
+    });
+  }
+
+  // Notification button opens Requests
+  const notifBtn = document.getElementById('notifBtn');
+  if (notifBtn) {
+    notifBtn.addEventListener('click', () => switchSection('requests'));
+  }
 });
 
 // ── STORAGE ────────────────────────────────────────
@@ -70,8 +79,8 @@ function switchSection(name, filter) {
   if (activeNav && !filter) activeNav.classList.add('active');
 
   // Page title
-  const titles = { dashboard: 'Dashboard', projects: 'Projects', payments: 'Payments', team: 'Team' };
-  const subs   = { dashboard: 'Welcome back, Admin', projects: 'Manage all client projects', payments: 'Track payments & outstanding balances', team: 'Team workload overview' };
+  const titles = { dashboard: 'Dashboard', projects: 'Projects', payments: 'Payments', team: 'Team', requests: 'Client Requests' };
+  const subs   = { dashboard: 'Welcome back, Admin', projects: 'Manage all client projects', payments: 'Track payments & outstanding balances', team: 'Team workload overview', requests: 'Review, quote & confirm client inquiries' };
   document.getElementById('pageTitle').textContent = titles[name] || name;
   document.getElementById('pageSub').textContent   = subs[name] || '';
 
@@ -85,6 +94,7 @@ function switchSection(name, filter) {
   if (name === 'projects')  renderProjects();
   if (name === 'payments')  renderPaymentsTable();
   if (name === 'team')      renderTeam();
+  if (name === 'requests')  renderRequests();
 }
 
 function refreshAll() {
@@ -123,6 +133,9 @@ function updateBadges() {
   // Notification dot
   const notifDot = document.getElementById('notifDot');
   notifDot.style.display = unpaid > 0 ? '' : 'none';
+
+  // Requests badge
+  updateRequestBadge();
 }
 
 // ── DASHBOARD RENDER ───────────────────────────────
@@ -757,6 +770,10 @@ function closeOnBackdrop(e) {
   if (e.target.classList.contains('modal-overlay')) {
     e.target.classList.remove('open');
     document.body.style.overflow = '';
+    if (e.target.id === 'requestModal') {
+      currentRequestId = null;
+      renderRequests();
+    }
   }
 }
 
@@ -846,3 +863,586 @@ function setDefaultDate() {
   const sd = document.getElementById('startDate');
   if (sd) sd.value = today;
 }
+
+
+/* ══════════════════════════════════════════════════
+   CLIENT REQUESTS ENGINE
+══════════════════════════════════════════════════ */
+
+let requests          = [];
+let currentReqFilter  = 'all';
+let currentRequestId  = null;
+let quoteRowData      = [];   // [{ serviceName, deliverables, price }]
+
+const REQ_STATUS = {
+  'new':       { label: '🔴 New',        cls: 'req-new'       },
+  'in-review': { label: '🔵 In Review',  cls: 'req-in-review' },
+  'quoted':    { label: '🟡 Quoted',     cls: 'req-quoted'    },
+  'confirmed': { label: '✅ Confirmed',  cls: 'req-confirmed' },
+  'rejected':  { label: '❌ Rejected',   cls: 'req-rejected'  }
+};
+
+// ── Storage ──
+function getDemoRequests() {
+  return [
+    {
+      id: 'req_demo_1',
+      status: 'new',
+      createdAt: new Date(Date.now() - 35 * 60 * 1000).toISOString(),
+      client: {
+        name: 'كريم الشناوي (Karim El-Shennawy)',
+        phone: '01012345678',
+        email: 'karim@elpatio-eg.com',
+        company: 'El Patio Eateries'
+      },
+      services: [
+        { name: 'Website Development', pillar: '💻 Digital' },
+        { name: 'Meta Ads (FB & IG)', pillar: '📱 Marketing' },
+        { name: 'Reels & Short-Form', pillar: '🎥 Content' }
+      ],
+      budget: '15,000 – 50,000 جنيه',
+      timeline: 'خلال شهر (Within 1 month)',
+      notes: 'نحتاج موقع سريع لعرض الفروع وقائمة الطعام + حملة إعلانات ممولة على إنستجرام وتيك توك مع 8 فيديوهات ريلز للمنتجات الجديدة.',
+      quote: {
+        items: [
+          { serviceName: 'Website Development', deliverables: 'موقع ديناميكي 5 صفحات + منيو تفاعلي + ربط جوجل مابس', price: 18000 },
+          { serviceName: 'Meta Ads (FB & IG)', deliverables: 'إدارة حملات لشهر كامل + 6 تصميمات إعلانية + تقرير أسبوعي', price: 7000 },
+          { serviceName: 'Reels & Short-Form', deliverables: '8 فيديوهات ريلز وتيك توك (تصوير + مونتاج + سكريبت)', price: 12000 }
+        ],
+        adminNotes: 'دفعة أولى 50% عند التعاقد والباقي 50% بعد التسليم والمراجعة النهائية.',
+        totalPrice: 37000,
+        sentAt: null
+      }
+    },
+    {
+      id: 'req_demo_2',
+      status: 'quoted',
+      createdAt: new Date(Date.now() - 3 * 3600 * 1000).toISOString(),
+      client: {
+        name: 'مريم عثمان (Mariam Othman)',
+        phone: '01123456789',
+        email: 'mariam@bloomstudio.net',
+        company: 'Bloom Fashion Studio'
+      },
+      services: [
+        { name: 'Brand Strategy', pillar: '⚡ Strategy' },
+        { name: 'Visual Identity & Logo', pillar: '⚡ Strategy' },
+        { name: 'Social Media Management', pillar: '📱 Marketing' }
+      ],
+      budget: '50,000 – 150,000 جنيه',
+      timeline: 'خلال 3 أشهر (Within 3 months)',
+      notes: 'إعادة إطلاق الهوية البصرية للبراند بالكامل مع إدارة حسابات السوشيال ميديا لمدة 3 شهور.',
+      quote: {
+        items: [
+          { serviceName: 'Brand Strategy', deliverables: 'دراسة السوق والمنافسين وتحديد التموضع واستراتيجية البراند', price: 15000 },
+          { serviceName: 'Visual Identity & Logo', deliverables: 'لوجو كامل + دليل الهوية البصرية Brand Guidelines + التصاميم المطبوعة', price: 20000 },
+          { serviceName: 'Social Media Management', deliverables: 'إدارة شهرية (20 بوست + 30 ستوري شهرياً)', price: 12000 }
+        ],
+        adminNotes: 'مدة تنفيذ استراتيجية البراند والهوية 4 أسابيع.',
+        totalPrice: 47000,
+        sentAt: new Date(Date.now() - 1 * 3600 * 1000).toISOString()
+      }
+    }
+  ];
+}
+
+function loadRequests() {
+  try {
+    const raw = localStorage.getItem('vortxa_requests');
+    if (!raw) {
+      requests = getDemoRequests();
+      saveRequests();
+    } else {
+      requests = JSON.parse(raw);
+    }
+  } catch {
+    requests = [];
+  }
+}
+
+function saveRequests() {
+  localStorage.setItem('vortxa_requests', JSON.stringify(requests));
+}
+
+function updateRequestBadge() {
+  loadRequests();
+  const newCount = requests.filter(r => r.status === 'new').length;
+  const badge = document.getElementById('requestsBadge');
+  if (!badge) return;
+  badge.textContent = newCount;
+  badge.style.display = newCount > 0 ? '' : 'none';
+  // Also flash notification dot if there are new requests
+  const notifDot = document.getElementById('notifDot');
+  if (notifDot && newCount > 0) notifDot.style.display = '';
+}
+
+// ── Render Requests Grid ──
+function renderRequests() {
+  loadRequests();
+  const grid  = document.getElementById('requestsGrid');
+  const empty = document.getElementById('requestsEmpty');
+  if (!grid) return;
+
+  let filtered = [...requests];
+  if (currentReqFilter !== 'all') {
+    filtered = filtered.filter(r => r.status === currentReqFilter);
+  }
+
+  if (!filtered.length) {
+    grid.innerHTML = '';
+    empty.style.display = 'flex';
+    return;
+  }
+  empty.style.display = 'none';
+  grid.innerHTML = filtered.map(r => buildRequestCard(r)).join('');
+}
+
+function buildRequestCard(req) {
+  const st      = REQ_STATUS[req.status] || REQ_STATUS['new'];
+  const date    = new Date(req.createdAt);
+  const timeStr = date.toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }) +
+                  ' ' + date.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
+  const svcCount = req.services ? req.services.length : 0;
+  const svcPills = (req.services || []).slice(0, 4)
+    .map(s => `<span class="req-svc-pill">${esc(s.name)}</span>`).join('');
+  const hasMore  = svcCount > 4 ? `<span class="req-svc-pill req-svc-more">+${svcCount - 4} more</span>` : '';
+  const total    = req.quote && req.quote.totalPrice ? req.quote.totalPrice.toLocaleString() + ' EGP' : '—';
+
+  return `
+  <div class="req-card req-card-${req.status}" onclick="openRequestModal('${req.id}')">
+    <div class="req-card-top">
+      <span class="req-card-status ${st.cls}">${st.label}</span>
+      <span class="req-card-time">${timeStr}</span>
+    </div>
+    <div class="req-card-client">
+      <div class="req-card-avatar"><i class="ri-user-3-fill"></i></div>
+      <div>
+        <div class="req-card-name">${esc(req.client.name)}</div>
+        <div class="req-card-phone"><i class="ri-whatsapp-line"></i> ${esc(req.client.phone)}</div>
+      </div>
+    </div>
+    <div class="req-card-services">${svcPills}${hasMore}</div>
+    <div class="req-card-footer">
+      <span><i class="ri-service-fill"></i> ${svcCount} service${svcCount !== 1 ? 's' : ''}</span>
+      ${total !== '—' ? `<span class="req-card-price"><i class="ri-money-dollar-circle-line"></i> ${total}</span>` : ''}
+      ${req.client.budget ? `<span><i class="ri-wallet-3-line"></i> ${esc(req.client.budget)}</span>` : ''}
+    </div>
+  </div>`;
+}
+
+function filterRequests(filter, btn) {
+  currentReqFilter = filter;
+  document.querySelectorAll('#reqFilterTabs .filter-tab').forEach(t => t.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderRequests();
+}
+
+function clearAllRequests() {
+  if (!confirm('Delete ALL client requests? This cannot be undone.')) return;
+  requests = [];
+  saveRequests();
+  renderRequests();
+  updateRequestBadge();
+  showToast('All requests cleared', 'info', '🗑️');
+}
+
+// ── Request Review Modal ──
+function openRequestModal(id) {
+  loadRequests();
+  const req = requests.find(r => r.id === id);
+  if (!req) return;
+  currentRequestId = id;
+
+  // Mark as in-review if new
+  if (req.status === 'new') {
+    req.status = 'in-review';
+    saveRequests();
+    updateRequestBadge();
+  }
+
+  // Header
+  const st = REQ_STATUS[req.status] || REQ_STATUS['new'];
+  document.getElementById('reqModalTitle').textContent = req.client.name + (req.client.company ? ' — ' + req.client.company : '');
+  document.getElementById('reqModalSub').textContent   = 'Received: ' + new Date(req.createdAt).toLocaleString('en-GB');
+  const badge = document.getElementById('reqStatusBadge');
+  badge.textContent  = st.label;
+  badge.className    = 'req-status-badge ' + st.cls;
+
+  // Status selector
+  const sel = document.getElementById('reqStatusSelect');
+  if (sel) sel.value = req.status;
+
+  // Client info panel
+  const infoRows = [
+    { icon: 'ri-user-3-fill',        label: 'Name',    val: req.client.name    },
+    { icon: 'ri-whatsapp-line',      label: 'WhatsApp',val: req.client.phone   },
+    { icon: 'ri-mail-fill',          label: 'Email',   val: req.client.email   },
+    { icon: 'ri-building-2-fill',    label: 'Company', val: req.client.company },
+  ].filter(r => r.val);
+
+  document.getElementById('reqClientInfo').innerHTML = infoRows.map(r =>
+    `<div class="req-info-row">
+       <span class="req-info-icon"><i class="${r.icon}"></i></span>
+       <div>
+         <div class="req-info-label">${r.label}</div>
+         <div class="req-info-val">${esc(r.val)}</div>
+       </div>
+     </div>`
+  ).join('');
+
+  // Services list
+  const byPillar = {};
+  (req.services || []).forEach(s => {
+    if (!byPillar[s.pillar]) byPillar[s.pillar] = [];
+    byPillar[s.pillar].push(s.name);
+  });
+  document.getElementById('reqServicesList').innerHTML = Object.entries(byPillar).map(([pillar, svcs]) =>
+    `<div class="req-pillar-block">
+       <div class="req-pillar-label">${esc(pillar)}</div>
+       ${svcs.map(s => `<div class="req-svc-item"><i class="ri-checkbox-circle-fill" style="color:#10b981"></i> ${esc(s)}</div>`).join('')}
+     </div>`
+  ).join('');
+
+  // Details block
+  const details = [
+    { icon: 'ri-wallet-3-fill',     label: 'Budget',   val: req.budget   },
+    { icon: 'ri-time-fill',         label: 'Timeline', val: req.timeline },
+    { icon: 'ri-chat-4-fill',       label: 'Notes',    val: req.notes    },
+  ].filter(d => d.val);
+  document.getElementById('reqDetailsBlock').innerHTML = details.map(d =>
+    `<div class="req-detail-row">
+       <span class="req-info-label"><i class="${d.icon}"></i> ${d.label}</span>
+       <span class="req-info-val">${esc(d.val)}</span>
+     </div>`
+  ).join('') || '<div style="color:var(--text-muted);font-size:13px">No additional details provided</div>';
+
+  // Quote table
+  quoteRowData = (req.services || []).map(s => {
+    const existing = req.quote && req.quote.items ? req.quote.items.find(i => i.serviceName === s.name) : null;
+    return {
+      serviceName:  s.name,
+      pillar:       s.pillar,
+      deliverables: existing ? existing.deliverables : '',
+      price:        existing ? existing.price : ''
+    };
+  });
+
+  renderQuoteTable();
+
+  // Admin notes
+  const notesEl = document.getElementById('reqAdminNotes');
+  if (notesEl) notesEl.value = (req.quote && req.quote.adminNotes) || '';
+
+  document.getElementById('requestModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeRequestModal() {
+  document.getElementById('requestModal').classList.remove('open');
+  document.body.style.overflow = '';
+  currentRequestId = null;
+  renderRequests();
+}
+
+// ── Quote Table ──
+function renderQuoteTable() {
+  const tbody = document.getElementById('quoteTableBody');
+  if (!tbody) return;
+  tbody.innerHTML = quoteRowData.map((row, i) => `
+    <tr class="quote-row">
+      <td>
+        <div class="quote-svc-name">${esc(row.serviceName)}</div>
+        <div class="quote-svc-pillar">${esc(row.pillar)}</div>
+      </td>
+      <td>
+        <input class="quote-input" type="text"
+          placeholder="e.g. 15 posts, 4 videos, 5-page site..."
+          value="${esc(row.deliverables)}"
+          oninput="quoteRowData[${i}].deliverables=this.value">
+      </td>
+      <td>
+        <input class="quote-input price-input" type="number"
+          placeholder="0"
+          value="${row.price || ''}"
+          oninput="quoteRowData[${i}].price=parseFloat(this.value)||0;recalcTotal()">
+      </td>
+    </tr>`).join('');
+  recalcTotal();
+}
+
+function recalcTotal() {
+  const total = quoteRowData.reduce((s, r) => s + (parseFloat(r.price) || 0), 0);
+  const el = document.getElementById('quoteTotalDisplay');
+  if (el) el.textContent = total.toLocaleString() + ' EGP';
+}
+
+// ── Update Status ──
+function updateReqStatus() {
+  if (!currentRequestId) return;
+  const sel = document.getElementById('reqStatusSelect');
+  const req = requests.find(r => r.id === currentRequestId);
+  if (!req || !sel) return;
+  req.status = sel.value;
+  const st = REQ_STATUS[req.status] || REQ_STATUS['new'];
+  const badge = document.getElementById('reqStatusBadge');
+  if (badge) { badge.textContent = st.label; badge.className = 'req-status-badge ' + st.cls; }
+  saveRequests();
+}
+
+// ── Save Quote ──
+function saveQuote() {
+  if (!currentRequestId) return;
+  const req = requests.find(r => r.id === currentRequestId);
+  if (!req) return;
+
+  const total = quoteRowData.reduce((s, r) => s + (parseFloat(r.price) || 0), 0);
+  req.quote = {
+    items:      quoteRowData.map(r => ({ serviceName: r.serviceName, deliverables: r.deliverables, price: parseFloat(r.price) || 0 })),
+    adminNotes: (document.getElementById('reqAdminNotes')?.value || '').trim(),
+    totalPrice: total,
+    sentAt:     req.quote ? req.quote.sentAt : null
+  };
+
+  if (req.status === 'in-review') req.status = 'quoted';
+  const sel = document.getElementById('reqStatusSelect');
+  if (sel) sel.value = req.status;
+  const st = REQ_STATUS[req.status];
+  const badge = document.getElementById('reqStatusBadge');
+  if (badge && st) { badge.textContent = st.label; badge.className = 'req-status-badge ' + st.cls; }
+
+  saveRequests();
+  showToast('Quote saved successfully!', 'success', '💾');
+}
+
+// ── Send Proposal via WhatsApp ──
+function sendProposalWA() {
+  if (!currentRequestId) return;
+  const req = requests.find(r => r.id === currentRequestId);
+  if (!req) return;
+
+  // Auto-save quote first
+  saveQuote();
+
+  let phone = (req.client.phone || '').replace(/\D/g, '');
+  if (phone.startsWith('0')) {
+    phone = '2' + phone;
+  } else if (!phone.startsWith('20') && phone.length === 10) {
+    phone = '20' + phone;
+  }
+
+  const total = quoteRowData.reduce((s, r) => s + (parseFloat(r.price) || 0), 0);
+  const adminNotes = (document.getElementById('reqAdminNotes')?.value || '').trim();
+
+  const sep = '\u2501'.repeat(22);
+  const lines = [
+    '\uD83C\uDF1F vortxAgencie \u2014 Your Project Proposal',
+    '\u0639\u0631\u0636 \u0645\u0634\u0631\u0648\u0639\u0643 \u0645\u0646 vortxAgencie',
+    '',
+    sep,
+    '\uD83D\uDC4B Dear ' + req.client.name + ',',
+    '\u0634\u0643\u0631\u064b\u0627 \u0644\u062a\u0648\u0627\u0635\u0644\u0643 \u0645\u0639\u0646\u0627 \u060c \u0625\u0644\u064a\u0643 \u0639\u0631\u0636\u0646\u0627 \u0628\u0646\u0627\u0621 \u0639\u0644\u0649 \u0637\u0644\u0628\u0643.',
+    '',
+    sep,
+    '\uD83C\uDFAF SERVICES & PRICING / \u0627\u0644\u062e\u062f\u0645\u0627\u062a \u0648\u0627\u0644\u0623\u0633\u0639\u0627\u0631',
+    sep,
+    ...quoteRowData.map(r =>
+      '\u2705 ' + r.serviceName + '\n' +
+      (r.deliverables ? '   \uD83D\uDCE6 ' + r.deliverables + '\n' : '') +
+      '   \uD83D\uDCB0 ' + (parseFloat(r.price) || 0).toLocaleString() + ' EGP'
+    ),
+    '',
+    sep,
+    '\uD83D\uDCB0 TOTAL / \u0627\u0644\u0625\u062c\u0645\u0627\u0644\u064a: ' + total.toLocaleString() + ' EGP',
+    req.timeline ? '\u23F1 TIMELINE / \u0627\u0644\u0645\u062f\u0629: ' + req.timeline : '',
+    '',
+  ];
+
+  if (adminNotes) {
+    lines.push(sep);
+    lines.push('\uD83D\uDCDD NOTES / \u0645\u0644\u0627\u062d\u0638\u0627\u062a:');
+    lines.push(adminNotes);
+    lines.push('');
+  }
+
+  lines.push(sep);
+  lines.push('\uD83D\uDCDE \u0644\u0644\u062a\u0623\u0643\u064a\u062f \u060c \u0631\u062f \u0628\u0640 \u0646\u0639\u0645 / Reply YES to confirm');
+  lines.push('\u2728 vortxAgencie \u2014 We Build Brands That Command');
+
+  const msg = lines.filter(l => l !== '').join('\n');
+  const url = 'https://wa.me/' + phone + '?text=' + encodeURIComponent(msg);
+
+  window.open(url, '_blank');
+
+  // Update sent timestamp
+  const r = requests.find(x => x.id === currentRequestId);
+  if (r && r.quote) r.quote.sentAt = new Date().toISOString();
+  saveRequests();
+  showToast('Proposal sent on WhatsApp!', 'success', '\uD83D\uDCF2');
+}
+
+// ── Confirm → Convert to Project ──
+function confirmRequest() {
+  if (!currentRequestId) return;
+  const req = requests.find(r => r.id === currentRequestId);
+  if (!req) return;
+
+  saveQuote();
+  const total = quoteRowData.reduce((s, r) => s + (parseFloat(r.price) || 0), 0);
+
+  // Build services summary for notes
+  const svcSummary = quoteRowData.map(r =>
+    r.serviceName + (r.deliverables ? ': ' + r.deliverables : '') + (r.price ? ' (' + parseFloat(r.price).toLocaleString() + ' EGP)' : '')
+  ).join('\n');
+
+  const adminNotes = (document.getElementById('reqAdminNotes')?.value || '').trim();
+
+  const project = {
+    id:          'p_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
+    clientName:  req.client.name + (req.client.company ? ' (' + req.client.company + ')' : ''),
+    projectName: (req.services && req.services.length ? req.services[0].name : 'New Project') +
+                 (req.services && req.services.length > 1 ? ' + ' + (req.services.length - 1) + ' more' : ''),
+    type:        detectProjectType(req.services),
+    status:      'active',
+    startDate:   new Date().toISOString().slice(0, 10),
+    deadline:    '',
+    notes:       '--- FROM CLIENT REQUEST ---\n' +
+                 'Phone: ' + req.client.phone + '\n' +
+                 (req.client.email ? 'Email: ' + req.client.email + '\n' : '') +
+                 '\nServices:\n' + svcSummary +
+                 (adminNotes ? '\n\nAdmin Notes:\n' + adminNotes : '') +
+                 (req.notes ? '\n\nClient Notes:\n' + req.notes : ''),
+    totalPrice:  total,
+    amountPaid:  0,
+    paymentLog:  [],
+    team:        { dev: { enabled: false, name: '', task: '' }, editor: { enabled: false, name: '', task: '' }, creator: { enabled: false, name: '', task: '' }, designer: { enabled: false, name: '', task: '' }, social: { enabled: false, name: '', task: '' } },
+    createdAt:   new Date().toISOString(),
+    updatedAt:   new Date().toISOString(),
+    fromRequest: req.id
+  };
+
+  projects.push(project);
+  saveProjects();
+
+  // Mark request as confirmed
+  req.status = 'confirmed';
+  saveRequests();
+
+  closeRequestModal();
+  refreshAll();
+  showToast(req.client.name + ' confirmed! Project created.', 'success', '\u2705');
+}
+
+function detectProjectType(services) {
+  if (!services || !services.length) return 'Other';
+  const names = services.map(s => (s.name || '').toLowerCase()).join(' ');
+  if (names.includes('web') || names.includes('site') || names.includes('app')) return 'Web Development';
+  if (names.includes('brand') || names.includes('logo') || names.includes('identity')) return 'Brand Identity';
+  if (names.includes('video') || names.includes('production') || names.includes('creator')) return 'Content Production';
+  if (names.includes('ads') || names.includes('meta') || names.includes('tiktok') || names.includes('campaign')) return 'Ad Campaigns';
+  if (names.includes('social') || names.includes('media')) return 'Social Media Marketing';
+  if (names.includes('seo') || names.includes('growth')) return 'SEO & Growth';
+  return 'Full Package';
+}
+
+// Auto-load requests on init
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(updateRequestBadge, 100);
+});
+
+// ── Generate Printable Contract ──────────────────────────
+function generateContract() {
+  if (!currentRequestId) return;
+  const req = requests.find(r => r.id === currentRequestId);
+  if (!req) return;
+
+  // Auto-save quote first
+  saveQuote();
+
+  const total    = quoteRowData.reduce((s, r) => s + (parseFloat(r.price) || 0), 0);
+  const deposit  = total * 0.5;
+  const finalPay = total * 0.5;
+  const adminNotes = (document.getElementById('reqAdminNotes')?.value || '').trim();
+
+  // Contract number: VX-YYYYMMDD-XXXX
+  const now   = new Date();
+  const pad   = n => String(n).padStart(2, '0');
+  const cNum  = 'VX-' + now.getFullYear() + pad(now.getMonth()+1) + pad(now.getDate()) +
+                '-' + Math.floor(1000 + Math.random() * 9000);
+  const cDate = now.toLocaleDateString('en-GB', { day:'2-digit', month:'long', year:'numeric' });
+
+  // Fill header fields
+  document.getElementById('c-number').textContent = cNum;
+  document.getElementById('c-date').textContent   = cDate;
+
+  // Fill client info
+  document.getElementById('c-client-name').textContent    = req.client.name || '—';
+  document.getElementById('c-client-company').textContent = req.client.company || '';
+  document.getElementById('c-client-phone').textContent   = req.client.phone  || '';
+  document.getElementById('c-client-email').textContent   = req.client.email  || '';
+  document.getElementById('c-sig-client').textContent     = req.client.name   || '';
+
+  // Fill services table
+  const tbody = document.getElementById('c-services-body');
+  tbody.innerHTML = '';
+  if (quoteRowData.length > 0) {
+    quoteRowData.forEach((row, i) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td style="text-align:center;color:#64748b;">${i + 1}</td>
+        <td><strong>${row.serviceName || '—'}</strong></td>
+        <td style="color:#475569;">${row.deliverables || '—'}</td>
+        <td style="text-align:right;font-weight:600;">${(parseFloat(row.price)||0).toLocaleString()} EGP</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  } else if (req.services && req.services.length) {
+    // Fallback if no quote rows — use raw services
+    req.services.forEach((svc, i) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td style="text-align:center;color:#64748b;">${i + 1}</td>
+        <td><strong>${svc.name || svc}</strong></td>
+        <td style="color:#475569;">—</td>
+        <td style="text-align:right;font-weight:600;">—</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  // Totals
+  const fmt = n => n > 0 ? n.toLocaleString() + ' EGP' : '—';
+  document.getElementById('c-total').textContent   = fmt(total);
+  document.getElementById('c-total-2').textContent = fmt(total);
+  document.getElementById('c-deposit').textContent = fmt(deposit);
+  document.getElementById('c-final-pay').textContent = fmt(finalPay);
+
+  // Admin notes
+  const notesWrap = document.getElementById('c-admin-notes-wrap');
+  if (adminNotes) {
+    document.getElementById('c-admin-notes').textContent = adminNotes;
+    notesWrap.style.display = 'block';
+  } else {
+    notesWrap.style.display = 'none';
+  }
+
+  // Timeline
+  const timelineSection = document.getElementById('c-timeline-section');
+  if (req.timeline) {
+    document.getElementById('c-timeline').textContent = req.timeline;
+    timelineSection.style.display = 'block';
+  } else {
+    timelineSection.style.display = 'none';
+  }
+
+  // Show overlay and scroll to top
+  const overlay = document.getElementById('contract-overlay');
+  overlay.style.display = 'flex';
+  overlay.scrollTop = 0;
+  document.body.style.overflow = 'hidden';
+}
+
+function closeContract() {
+  document.getElementById('contract-overlay').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
