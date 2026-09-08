@@ -376,7 +376,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (wProgressBar) wProgressBar.style.width = WPROGRESS[n] + '%';
     if (n === 4) buildWaSummary();
     const wf = document.getElementById('wizard-form');
-    if (wf) wf.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (wf) {
+      const yOffset = -80;
+      const y = wf.getBoundingClientRect().top + window.pageYOffset + yOffset;
+      window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
+    }
   }
 
   function validateStep1() {
@@ -531,6 +535,40 @@ document.addEventListener('DOMContentLoaded', () => {
   if (s3b) s3b.addEventListener('click', () => goToStep(2, 'back'));
   if (s3n) s3n.addEventListener('click', () => goToStep(4));
   if (s4b) s4b.addEventListener('click', () => goToStep(3, 'back'));
+
+  // Step item click navigation
+  wStepItems.forEach((item, idx) => {
+    item.addEventListener('click', () => {
+      const target = idx + 1;
+      if (target === wizardState.step) return;
+      if (target < wizardState.step) {
+        goToStep(target, 'back');
+      } else {
+        if (wizardState.step === 1 && !validateStep1()) return;
+        if (wizardState.step === 2 && target > 2 && !validateStep2()) return;
+        goToStep(target);
+      }
+    });
+  });
+
+  // Pillar quick-filter tabs in Step 2
+  const spnBtns = document.querySelectorAll('.spn-btn');
+  const svcGroups = document.querySelectorAll('.svc-group');
+  spnBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const filter = btn.dataset.filter;
+      spnBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      svcGroups.forEach(grp => {
+        const pKey = grp.dataset.pillarGroup;
+        if (filter === 'all' || pKey === filter) {
+          grp.style.display = '';
+        } else {
+          grp.style.display = 'none';
+        }
+      });
+    });
+  });
 
   // Init progress bar
   if (wProgressBar) wProgressBar.style.width = '25%';

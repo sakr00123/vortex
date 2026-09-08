@@ -802,8 +802,17 @@
               <div class="svc-pills" id="svc-pills"></div>
             </div>
 
+            <!-- Pillar Quick Filter (Tabs for Mobile & Desktop) -->
+            <div class="svc-pillar-nav" id="svc-pillar-nav" role="tablist">
+              <button type="button" class="spn-btn active" data-filter="all">All / الكل (32)</button>
+              <button type="button" class="spn-btn" data-filter="brand">🎨 Brand (8)</button>
+              <button type="button" class="spn-btn" data-filter="marketing">📱 Marketing (8)</button>
+              <button type="button" class="spn-btn" data-filter="content">🎥 Content (8)</button>
+              <button type="button" class="spn-btn" data-filter="digital">💻 Digital (8)</button>
+            </div>
+
             <!-- Brand Pillar -->
-            <div class="svc-group">
+            <div class="svc-group" data-pillar-group="brand">
               <div class="svc-group-header orange">
                 <i class="ri-palette-line"></i> 🎨 Brand Strategy &amp; Identity
               </div>
@@ -860,7 +869,7 @@
             </div>
 
             <!-- Marketing Pillar -->
-            <div class="svc-group">
+            <div class="svc-group" data-pillar-group="marketing">
               <div class="svc-group-header blue">
                 <i class="ri-line-chart-line"></i> 📱 Marketing &amp; Advertising
               </div>
@@ -917,7 +926,7 @@
             </div>
 
             <!-- Content Pillar -->
-            <div class="svc-group">
+            <div class="svc-group" data-pillar-group="content">
               <div class="svc-group-header purple">
                 <i class="ri-vidicon-2-line"></i> 🎥 Content Production
               </div>
@@ -974,7 +983,7 @@
             </div>
 
             <!-- Digital Pillar -->
-            <div class="svc-group">
+            <div class="svc-group" data-pillar-group="digital">
               <div class="svc-group-header green">
                 <i class="ri-code-s-slash-line"></i> 💻 Digital &amp; Technology
               </div>
